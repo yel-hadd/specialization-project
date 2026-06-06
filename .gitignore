@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+
+# Env and secrets
+.env
+.env.local
+
+# Generated sample data (regenerate with data/generate_synthetic.py or `make data`)
+data/samples/
+
+# OS
+.DS_Store
+
+# Notebook checkpoints
+.ipynb_checkpoints/
