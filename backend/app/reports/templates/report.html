@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<style>
+  @page {
+    size: A4;
+    margin: 1.4cm 1.3cm;
+    @bottom-center {
+      content: "EduTrack Analytics  |  page " counter(page) " / " counter(pages);
+      font-family: "DejaVu Sans", sans-serif;
+      font-size: 9px;
+      color: #94a3b8;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: "DejaVu Sans", sans-serif;
+    color: #1f2937;
+    background: #ffffff;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  /* Header band */
+  .header {
+    background: #1d4ed8;
+    color: #ffffff;
+    padding: 22px 26px;
+    border-radius: 10px;
+    margin-bottom: 22px;
+  }
+  .header h1 { margin: 0; font-size: 22px; font-weight: 700; }
+  .header .sub { margin-top: 4px; font-size: 12px; color: #dbeafe; }
+  .header .meta { margin-top: 8px; font-size: 11px; color: #bfdbfe; }
+
+  /* Section titles */
+  h2 {
+    color: #1e3a8a;
+    font-size: 15px;
+    margin: 26px 0 10px;
+    padding-left: 10px;
+    border-left: 4px solid #1d4ed8;
+  }
+
+  /* KPI cards */
+  .kpis { margin: 6px 0 4px; }
+  .kpi {
+    display: inline-block;
+    width: 31.5%;
+    vertical-align: top;
+    margin: 0 1% 10px 0;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #1d4ed8;
+    border-radius: 8px;
+    background: #f8fafc;
+  }
+  .kpi .label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .04em; }
+  .kpi .value { font-size: 22px; font-weight: 700; color: #0f172a; margin-top: 2px; }
+  .kpi .unit { font-size: 11px; font-weight: 400; color: #94a3b8; }
+
+  /* Charts */
+  .chart { page-break-inside: avoid; text-align: center; margin: 8px 0; }
+  .chart img { max-width: 100%; border: 1px solid #eef2f7; border-radius: 8px; padding: 6px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 8px 0 4px; font-size: 11px; }
+  thead { display: table-header-group; }
+  th {
+    background: #1e3a8a; color: #ffffff; text-align: left;
+    padding: 7px 9px; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: .03em;
+  }
+  td { padding: 6px 9px; border-bottom: 1px solid #eef2f7; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  td.num, th.num { text-align: right; }
+  tr { page-break-inside: avoid; }
+
+  /* Segment + risk badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+  .seg-excellent { background: #d1fae5; color: #065f46; }
+  .seg-stable    { background: #e0f2fe; color: #075985; }
+  .seg-moyen     { background: #fef3c7; color: #92400e; }
+  .seg-fragile   { background: #ffedd5; color: #9a3412; }
+  .seg-a_risque  { background: #fee2e2; color: #991b1b; }
+  .score { font-weight: 700; color: #b91c1c; }
+
+  .footer-note { margin-top: 20px; font-size: 10px; color: #94a3b8; border-top: 1px solid #eef2f7; padding-top: 8px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>EduTrack Analytics</h1>
+    <div class="sub">Rapport pedagogique de performance des etudiants</div>
+    <div class="meta">Genere le {{ generated_at }}</div>
+  </div>
+
+  <h2>Indicateurs cles</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="label">Etudiants</div><div class="value">{{ kpis.n_students }}</div></div>
+    <div class="kpi"><div class="label">Moyenne generale</div><div class="value">{{ kpis.overall_average }} <span class="unit">/ 20</span></div></div>
+    <div class="kpi"><div class="label">Taux de reussite</div><div class="value">{{ (kpis.success_rate * 100) | round(1) if kpis.success_rate is not none else "-" }}<span class="unit">%</span></div></div>
+    <div class="kpi"><div class="label">Taux d'absence</div><div class="value">{{ (kpis.absence_rate * 100) | round(1) if kpis.absence_rate is not none else "-" }}<span class="unit">%</span></div></div>
+    <div class="kpi"><div class="label">Etudiants a risque</div><div class="value">{{ kpis.n_at_risk }}</div></div>
+    <div class="kpi"><div class="label">Progression globale</div><div class="value">{{ kpis.progression if kpis.progression is not none else "-" }} <span class="unit">pts</span></div></div>
+  </div>
+
+  {% if dist_chart %}
+  <h2>Distribution des notes</h2>
+  <div class="chart"><img src="data:image/png;base64,{{ dist_chart }}"></div>
+  {% endif %}
+
+  {% if class_chart %}
+  <h2>Comparaison des classes</h2>
+  <div class="chart"><img src="data:image/png;base64,{{ class_chart }}"></div>
+  {% endif %}
+
+  <h2>Analyse par module</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Module</th><th class="num">Moyenne</th><th class="num">Min</th><th class="num">Max</th>
+        <th class="num">Variance</th><th class="num">Ecart-type</th><th class="num">Q1</th><th class="num">Q3</th>
+        <th class="num">Taux reussite</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for m in modules %}
+      <tr>
+        <td>{{ m.module_name }}</td>
+        <td class="num">{{ m.mean }}</td><td class="num">{{ m.min }}</td><td class="num">{{ m.max }}</td>
+        <td class="num">{{ m.variance }}</td><td class="num">{{ m.std }}</td>
+        <td class="num">{{ m.q1 }}</td><td class="num">{{ m.q3 }}</td>
+        <td class="num">{{ (m.success_rate * 100) | round(1) }}%</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Segmentation des etudiants</h2>
+  <table>
+    <thead><tr><th>Segment</th><th class="num">Nombre</th></tr></thead>
+    <tbody>
+    {% for seg, n in segmentation.items() %}
+      <tr>
+        <td><span class="badge seg-{{ seg }}">{{ seg.replace("_", " ") }}</span></td>
+        <td class="num">{{ n }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Etudiants a risque et recommandations</h2>
+  <table>
+    <thead>
+      <tr><th>Etudiant</th><th>Classe</th><th class="num">Moyenne</th><th class="num">Score</th><th>Recommandations</th></tr>
+    </thead>
+    <tbody>
+    {% for s in at_risk %}
+      <tr>
+        <td>{{ s.name }} <span style="color:#94a3b8">({{ s.student_code }})</span></td>
+        <td>{{ s.class_name or "-" }}</td>
+        <td class="num">{{ s.average }}</td>
+        <td class="num"><span class="score">{{ s.risk_score }}</span></td>
+        <td>{{ s.recommendations | join(" ") }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer-note">
+    Rapport genere automatiquement par EduTrack Analytics a partir des donnees importees.
+    Maroc Ynov Campus.
+  </div>
+</body>
+</html>
