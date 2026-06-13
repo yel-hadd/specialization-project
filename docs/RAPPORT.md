@@ -2,6 +2,8 @@
 
 Projet Spé DATA, Maroc Ynov Campus.
 
+Démonstration vidéo : https://drive.google.com/file/d/1yJYg1_yLmzMC4qEJgLP1PmkmyHiqSXLS/view?usp=drive_link
+
 ## 1. Contexte et problématique
 
 Un établissement génère beaucoup de données académiques (notes, absences, retards, modules,

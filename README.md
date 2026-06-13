@@ -6,6 +6,8 @@ modules) pour produire des tableaux de bord, des indicateurs et des alertes d'ai
 
 Projet Spe DATA, Maroc Ynov Campus.
 
+Demonstration video: https://drive.google.com/file/d/1yJYg1_yLmzMC4qEJgLP1PmkmyHiqSXLS/view?usp=drive_link
+
 ## Stack technique
 
 - **Backend**: FastAPI (Python), SQLAlchemy, Alembic
@@ -135,3 +137,4 @@ Tables principales: `users`, `classes`, `modules`, `students`, `grades`, `absenc
 - Notebook d'analyse: `notebook/EDA.ipynb`
 - Script SQL: `backend/schema.sql` + migrations Alembic
 - Application fonctionnelle: via `docker compose up`
+- Video de demonstration: https://drive.google.com/file/d/1yJYg1_yLmzMC4qEJgLP1PmkmyHiqSXLS/view?usp=drive_link
