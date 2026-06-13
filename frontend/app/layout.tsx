@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { I18nProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: "EduTrack Analytics",
-  description: "Plateforme d'analyse de performance des etudiants",
+  description: "Student performance analytics platform",
 };
 
 export default function RootLayout({
@@ -13,7 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body>{children}</body>
+      <body>
+        <I18nProvider>{children}</I18nProvider>
+      </body>
     </html>
   );
 }

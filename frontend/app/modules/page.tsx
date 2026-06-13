@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Shell from "@/components/Shell";
 import { DistributionChart, ModuleChart } from "@/components/charts";
-import { PageTitle } from "@/components/ui";
+import { CardTitle, PageTitle } from "@/components/ui";
+import { useI18n } from "@/lib/i18n";
 import { useFetch } from "@/lib/useApi";
 import type { ClassStat, Distribution, ModuleStat } from "@/lib/types";
 
 export default function ModulesPage() {
+  const { t } = useI18n();
   const { data } = useFetch<ModuleStat[]>("/analytics/modules");
   const classes = useFetch<ClassStat[]>("/analytics/classes");
   const periods = useFetch<string[]>("/analytics/periods");
@@ -27,22 +29,22 @@ export default function ModulesPage() {
 
   return (
     <Shell>
-      <PageTitle title="Analyse par module" subtitle="Modules les plus reussis et les plus difficiles" />
+      <PageTitle title={t("modules.title")} subtitle={t("modules.subtitle")} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card">
-          <h2 className="font-semibold mb-3">Taux de reussite / echec par module</h2>
+          <CardTitle title={t("modules.successFail")} info={t("modules.successFail.info")} />
           {data && <ModuleChart data={data} />}
         </div>
         <div className="card">
-          <h2 className="font-semibold mb-3">Distribution des notes</h2>
-          <div className="flex flex-wrap gap-2 mb-3">
+          <CardTitle title={t("chart.distribution.title")} />
+          <div className="mb-3 flex flex-wrap gap-2">
             <select
               className="input w-40"
               value={moduleId ?? ""}
               onChange={(e) => setModuleId(e.target.value ? Number(e.target.value) : null)}
             >
-              <option value="">Tous les modules</option>
+              <option value="">{t("filter.allModules")}</option>
               {data?.map((m) => (
                 <option key={m.module_id} value={m.module_id}>{m.module_name}</option>
               ))}
@@ -52,7 +54,7 @@ export default function ModulesPage() {
               value={classId ?? ""}
               onChange={(e) => setClassId(e.target.value ? Number(e.target.value) : null)}
             >
-              <option value="">Toutes les classes</option>
+              <option value="">{t("filter.allClasses")}</option>
               {classes.data?.map((c) => (
                 <option key={c.class_id} value={c.class_id}>{c.class_name}</option>
               ))}
@@ -62,7 +64,7 @@ export default function ModulesPage() {
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
             >
-              <option value="">Toutes les periodes</option>
+              <option value="">{t("filter.allPeriods")}</option>
               {periods.data?.map((p) => (
                 <option key={p} value={p}>{p}</option>
               ))}
@@ -75,17 +77,17 @@ export default function ModulesPage() {
       <div className="card">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-slate-500 border-b">
-              <th className="py-2">Module</th>
-              <th>Moyenne</th>
-              <th>Mediane</th>
-              <th>Min</th>
-              <th>Max</th>
-              <th>Variance</th>
-              <th>Ecart-type</th>
-              <th>Q1</th>
-              <th>Q3</th>
-              <th>Reussite</th>
+            <tr className="border-b text-left text-slate-500">
+              <th className="py-2">{t("table.module")}</th>
+              <th>{t("table.mean")}</th>
+              <th>{t("table.median")}</th>
+              <th>{t("table.min")}</th>
+              <th>{t("table.max")}</th>
+              <th>{t("table.variance")}</th>
+              <th>{t("table.std")}</th>
+              <th>{t("table.q1")}</th>
+              <th>{t("table.q3")}</th>
+              <th>{t("table.success")}</th>
             </tr>
           </thead>
           <tbody>

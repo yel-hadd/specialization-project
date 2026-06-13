@@ -3,15 +3,18 @@
 import Shell from "@/components/Shell";
 import { PageTitle } from "@/components/ui";
 import { API_URL, getToken } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
 
 export default function ReportsPage() {
+  const { t } = useI18n();
+
   // Use fetch (not a plain link) to attach the JWT, then download the blob.
   async function open(format: "html" | "pdf") {
     const res = await fetch(`${API_URL}/reports/${format}`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) {
-      alert("Erreur lors de la generation du rapport");
+      alert(t("reports.error"));
       return;
     }
     const blob = await res.blob();
@@ -29,19 +32,15 @@ export default function ReportsPage() {
 
   return (
     <Shell>
-      <PageTitle title="Generation de rapports" subtitle="Rapport pedagogique en PDF ou HTML" />
+      <PageTitle title={t("reports.title")} subtitle={t("reports.subtitle")} />
       <div className="card max-w-xl">
-        <p className="text-sm text-slate-600 mb-4">
-          Le rapport est genere a partir des donnees importees. Il reprend les indicateurs cles,
-          la distribution des notes, l&apos;analyse par classe et par module, la segmentation et les
-          etudiants a risque avec leurs recommandations.
-        </p>
+        <p className="mb-4 text-sm text-slate-600">{t("reports.desc")}</p>
         <div className="flex gap-3">
           <button className="btn" onClick={() => open("pdf")}>
-            Telecharger le PDF
+            {t("reports.downloadPdf")}
           </button>
           <button className="btn-ghost" onClick={() => open("html")}>
-            Apercu HTML
+            {t("reports.previewHtml")}
           </button>
         </div>
       </div>

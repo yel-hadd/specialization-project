@@ -2,29 +2,31 @@
 
 import Shell from "@/components/Shell";
 import { ClassBarChart } from "@/components/charts";
-import { PageTitle } from "@/components/ui";
+import { CardTitle, PageTitle } from "@/components/ui";
+import { useI18n } from "@/lib/i18n";
 import { useFetch } from "@/lib/useApi";
 import type { ClassStat } from "@/lib/types";
 
 export default function ClassesPage() {
+  const { t } = useI18n();
   const { data } = useFetch<ClassStat[]>("/analytics/classes");
 
   return (
     <Shell>
-      <PageTitle title="Analyse par classe" subtitle="Comparaison des performances entre classes" />
+      <PageTitle title={t("classes.title")} subtitle={t("classes.subtitle")} />
       <div className="card mb-6">
-        <h2 className="font-semibold mb-3">Moyenne par classe</h2>
+        <CardTitle title={t("chart.classMean.title")} />
         {data && <ClassBarChart data={data} />}
       </div>
       <div className="card">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-slate-500 border-b">
-              <th className="py-2">Classe</th>
-              <th>Moyenne</th>
-              <th>Ecart-type</th>
-              <th>Taux de reussite</th>
-              <th>Etudiants</th>
+            <tr className="border-b text-left text-slate-500">
+              <th className="py-2">{t("table.class")}</th>
+              <th>{t("table.mean")}</th>
+              <th>{t("table.std")}</th>
+              <th>{t("table.successRate")}</th>
+              <th>{t("table.students")}</th>
             </tr>
           </thead>
           <tbody>

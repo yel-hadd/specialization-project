@@ -4,21 +4,46 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearToken, getToken } from "@/lib/api";
+import { useI18n } from "@/lib/i18n";
+import { LOCALES, type Locale } from "@/lib/messages";
 
 const NAV = [
-  { href: "/dashboard", label: "Tableau de bord" },
-  { href: "/classes", label: "Classes" },
-  { href: "/modules", label: "Modules" },
-  { href: "/students", label: "Etudiants" },
-  { href: "/anomalies", label: "Anomalies" },
-  { href: "/alerts", label: "Alertes" },
-  { href: "/imports", label: "Imports" },
-  { href: "/reports", label: "Rapports" },
+  { href: "/dashboard", key: "nav.dashboard" },
+  { href: "/classes", key: "nav.classes" },
+  { href: "/modules", key: "nav.modules" },
+  { href: "/students", key: "nav.students" },
+  { href: "/anomalies", key: "nav.anomalies" },
+  { href: "/alerts", key: "nav.alerts" },
+  { href: "/imports", key: "nav.imports" },
+  { href: "/reports", key: "nav.reports" },
 ];
+
+function LanguageSwitcher() {
+  const { locale, setLocale, t } = useI18n();
+  return (
+    <div className="px-3 pb-2" aria-label={t("lang.label")}>
+      <div className="flex rounded-lg border border-white/20 p-0.5 text-xs">
+        {LOCALES.map((l: Locale) => (
+          <button
+            key={l}
+            onClick={() => setLocale(l)}
+            aria-pressed={locale === l}
+            className={`flex-1 rounded-md px-2 py-1 transition ${
+              locale === l ? "bg-white/20 font-semibold" : "hover:bg-white/10"
+            }`}
+          >
+            {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useI18n();
   const [ready, setReady] = useState(false);
 
   // Client-side auth guard: redirect to login when no token is present.
@@ -33,13 +58,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   if (!ready) return null;
 
   return (
-    <div className="h-screen flex overflow-hidden">
+    <div className="flex h-screen overflow-hidden">
       {/* Sidebar fixed to the screen height; the main content scrolls separately. */}
-      <aside className="w-60 shrink-0 h-screen bg-brand-dark text-white flex flex-col">
-        <div className="px-5 py-5 text-lg font-bold border-b border-white/10">
+      <aside className="flex h-screen w-60 shrink-0 flex-col bg-brand-dark text-white">
+        <div className="border-b border-white/10 px-5 py-5 text-lg font-bold">
           EduTrack <span className="text-brand-light">Analytics</span>
         </div>
-        <nav className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
           {NAV.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
@@ -50,11 +75,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                   active ? "bg-white/15 font-semibold" : "hover:bg-white/10"
                 }`}
               >
-                {item.label}
+                {t(item.key)}
               </Link>
             );
           })}
         </nav>
+        <LanguageSwitcher />
         <button
           onClick={() => {
             clearToken();
@@ -62,10 +88,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           }}
           className="m-3 rounded-lg border border-white/20 px-3 py-2 text-sm hover:bg-white/10"
         >
-          Deconnexion
+          {t("nav.logout")}
         </button>
       </aside>
-      <main className="flex-1 h-screen overflow-y-auto p-8">{children}</main>
+      <main className="h-screen flex-1 overflow-y-auto p-8">{children}</main>
     </div>
   );
 }

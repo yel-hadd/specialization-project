@@ -78,6 +78,7 @@ export interface Alert {
   severity: string;
   message: string;
   threshold_value: number | null;
+  metric_value: number | null;
   created_at: string;
   resolved: boolean;
 }

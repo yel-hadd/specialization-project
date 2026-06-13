@@ -3,11 +3,13 @@
 import { useParams } from "next/navigation";
 import Shell from "@/components/Shell";
 import { ProgressionChart } from "@/components/charts";
-import { KpiCard, PageTitle, SegmentBadge } from "@/components/ui";
+import { CardTitle, KpiCard, PageTitle, SegmentBadge } from "@/components/ui";
+import { useI18n } from "@/lib/i18n";
 import { useFetch } from "@/lib/useApi";
 import type { StudentDetail } from "@/lib/types";
 
 export default function StudentDetailPage() {
+  const { t } = useI18n();
   const params = useParams();
   const id = params.id as string;
   const { data, loading } = useFetch<StudentDetail>(`/students/${id}`);
@@ -18,7 +20,7 @@ export default function StudentDetailPage() {
   if (loading || !data) {
     return (
       <Shell>
-        <p className="text-slate-500">Chargement...</p>
+        <p className="text-slate-500">{t("common.loading")}</p>
       </Shell>
     );
   }
@@ -29,52 +31,57 @@ export default function StudentDetailPage() {
     <Shell>
       <PageTitle
         title={`${s.first_name} ${s.last_name}`}
-        subtitle={`${s.student_code} - ${data.class_name || "Sans classe"}`}
+        subtitle={`${s.student_code} - ${data.class_name || t("student.noClass")}`}
       />
 
-      <div className="flex items-center gap-3 mb-6">
-        <span className="text-sm text-slate-500">Statut:</span>
+      <div className="mb-6 flex items-center gap-3">
+        <span className="text-sm text-slate-500">{t("student.status")} :</span>
         <SegmentBadge segment={data.risk_segment} />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <KpiCard label="Moyenne" value={data.average ?? "-"} hint="sur 20" />
+      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <KpiCard label={t("kpi.average")} value={data.average ?? "-"} hint={t("common.outOf20")} />
         <KpiCard
-          label="Classement"
+          label={t("kpi.rank")}
           value={data.rank ? `${data.rank} / ${data.class_size}` : "-"}
+          info={t("kpi.rank.info")}
         />
-        <KpiCard label="Heures d'absence" value={data.absence_hours} />
-        <KpiCard label="Taux d'absence" value={`${(data.absence_rate * 100).toFixed(1)}%`} />
+        <KpiCard label={t("kpi.absenceHours")} value={data.absence_hours} />
+        <KpiCard
+          label={t("kpi.absenceRate")}
+          value={`${(data.absence_rate * 100).toFixed(1)}%`}
+          info={t("kpi.absenceRate.info")}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card">
-          <h2 className="font-semibold mb-3">Evolution par periode</h2>
+          <CardTitle title={t("student.evolution")} />
           {data.progression.length > 1 ? (
             <ProgressionChart data={data.progression} />
           ) : (
-            <p className="text-sm text-slate-400">Pas assez de periodes pour tracer une evolution.</p>
+            <p className="text-sm text-slate-400">{t("student.notEnoughPeriods")}</p>
           )}
         </div>
         <div className="card">
-          <h2 className="font-semibold mb-3">Recommandations</h2>
-          <ul className="list-disc pl-5 space-y-1 text-sm text-slate-700">
+          <CardTitle title={t("student.recommendations")} />
+          <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
             {data.recommendations.map((r, i) => (
-              <li key={i}>{r}</li>
+              <li key={i}>{t(`rec.${r}`)}</li>
             ))}
           </ul>
         </div>
       </div>
 
       <div className="card mt-6">
-        <h2 className="font-semibold mb-3">Notes ({data.grades.length})</h2>
+        <CardTitle title={t("student.grades", { n: data.grades.length })} />
         <div className="max-h-72 overflow-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-slate-500 border-b sticky top-0 bg-white">
-                <th className="py-2">Module</th>
-                <th>Periode</th>
-                <th>Note</th>
+              <tr className="sticky top-0 border-b bg-white text-left text-slate-500">
+                <th className="py-2">{t("table.module")}</th>
+                <th>{t("table.period")}</th>
+                <th>{t("table.grade")}</th>
               </tr>
             </thead>
             <tbody>
@@ -82,7 +89,7 @@ export default function StudentDetailPage() {
                 <tr key={g.id} className="border-b last:border-0">
                   <td className="py-1.5">{moduleName(g.module_id)}</td>
                   <td>{g.period || "-"}</td>
-                  <td className={g.value < 10 ? "text-red-600 font-medium" : ""}>{g.value}</td>
+                  <td className={g.value < 10 ? "font-medium text-red-600" : ""}>{g.value}</td>
                 </tr>
               ))}
             </tbody>
