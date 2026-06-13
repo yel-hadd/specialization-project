@@ -77,10 +77,14 @@ def make_grades(students: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for _, s in students.iterrows():
         ability = s["ability"]
+        # A per-student S2 shift (consistent across modules) so the whole cohort
+        # shows a real period-to-period trend, not just the planted at-risk group.
+        # Slightly negative on average, but some students improve.
+        s2_shift = float(rng.normal(-0.4, 1.3))
         for code, nom_module, coef in MODULES:
             for periode in PERIODES:
-                drift = rng.normal(0, 1.2) * (1 if periode == "S2" else 0)
-                note = float(np.clip(rng.normal(ability + drift, 2.2), 0, 20))
+                trend = s2_shift if periode == "S2" else 0.0
+                note = float(np.clip(rng.normal(ability + trend, 2.0), 0, 20))
                 rows.append({
                     "code_etudiant": s["code_etudiant"],
                     "code_module": code,
