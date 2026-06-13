@@ -21,7 +21,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
-  // Garde d'auth cote client: redirige vers login si pas de token.
+  // Client-side auth guard: redirect to login when no token is present.
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
@@ -34,7 +34,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="h-screen flex overflow-hidden">
-      {/* Sidebar fixe sur la hauteur de l'ecran, le contenu principal defile a part. */}
+      {/* Sidebar fixed to the screen height; the main content scrolls separately. */}
       <aside className="w-60 shrink-0 h-screen bg-brand-dark text-white flex flex-col">
         <div className="px-5 py-5 text-lg font-bold border-b border-white/10">
           EduTrack <span className="text-brand-light">Analytics</span>

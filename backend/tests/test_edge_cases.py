@@ -30,7 +30,7 @@ def test_empty_database_analytics_are_safe(db):
 
 
 def test_import_with_all_invalid_rows(db):
-    # Fichier de notes ou chaque ligne n'a pas la valeur obligatoire.
+    # Grades file where every row is missing the required value.
     grades = pd.DataFrame(
         {"student_code": ["S1", "S2"], "module": ["M1", "M2"], "note": [None, None]}
     )

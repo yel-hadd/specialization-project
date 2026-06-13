@@ -16,7 +16,7 @@ def test_garbage_token_returns_none():
 
 
 def test_expired_token_returns_none():
-    # Fabrique un token deja expire.
+    # Build an already-expired token.
     payload = {
         "sub": "user@edu.io",
         "exp": datetime.now(timezone.utc) - timedelta(minutes=1),

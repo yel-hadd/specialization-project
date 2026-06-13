@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Parametres de l'application charges depuis les variables d'environnement."""
+    """Application settings loaded from environment variables."""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -17,12 +17,12 @@ class Settings(BaseSettings):
     admin_email: str = "admin@edutrack.io"
     admin_password: str = "admin123"
 
-    # Seuils pedagogiques par defaut (servent a initialiser la table settings).
+    # Default academic thresholds (used to seed the settings table).
     pass_mark: float = 10.0
     risk_average: float = 10.0
     high_absence_rate: float = 0.15
     performance_drop: float = 3.0
-    expected_hours: float = 200.0  # total d'heures de reference pour le taux d'absence
+    expected_hours: float = 200.0  # reference total hours used for the absence rate
 
     @property
     def cors_origin_list(self) -> list[str]:

@@ -1,6 +1,6 @@
-"""Smoke test local : lance le pipeline et les analytics sur une base SQLite en memoire.
+"""Local smoke test: run the pipeline and analytics against in-memory SQLite.
 
-Outil de developpement, pas inclus dans l'app deployee. A lancer depuis backend/ :
+Development tool, not part of the deployed app. Run from backend/:
     DATABASE_URL=sqlite:// python smoke_test.py
 """
 
@@ -15,7 +15,7 @@ from sqlalchemy.orm import sessionmaker  # noqa: E402
 
 import app.core.database as database  # noqa: E402
 
-# Une seule connexion en memoire partagee pour tout le test.
+# Single shared in-memory connection for the whole test.
 engine = create_engine(
     "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
 )

@@ -20,7 +20,7 @@ from app.models import Setting, User
 
 
 def _seed(db) -> None:
-    """Cree l'admin par defaut et initialise les seuils ajustables (une seule fois)."""
+    """Create the default admin and seed the adjustable thresholds (once)."""
     if not db.scalar(select(User).where(User.email == settings.admin_email)):
         db.add(
             User(

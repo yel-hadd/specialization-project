@@ -1,15 +1,19 @@
-"""Detection d'anomalies : notes inhabituelles et absences excessives."""
+"""Anomaly detection: unusual grades and excessive absences."""
 
 import pandas as pd
 
 
 def grade_outliers(grades: pd.DataFrame, z_thresh: float = 2.5) -> list[dict]:
-    """Signale les notes loin de la moyenne de leur module (via le z-score)."""
+    """Flag grades far from their module mean via z-score (|z| >= z_thresh).
+
+    z_thresh defaults to 2.5: stricter than the usual 2.0 to keep the count of
+    flagged grades manageable and avoid drowning staff in marginal cases.
+    """
     if grades.empty:
         return []
     out = []
     for mid, g in grades.groupby("module_id"):
-        # en dessous de 3 notes le z-score n'a pas de sens, on passe
+        # below 3 grades the z-score is not meaningful, so skip the module
         if len(g) < 3:
             continue
         mean = g["value"].mean()
@@ -33,7 +37,11 @@ def grade_outliers(grades: pd.DataFrame, z_thresh: float = 2.5) -> list[dict]:
 
 
 def absence_outliers(absences: pd.DataFrame, iqr_factor: float = 1.5) -> list[dict]:
-    """Signale les etudiants dont le total d'heures d'absence depasse la borne IQR."""
+    """Flag students whose total absence hours exceed the upper IQR fence.
+
+    Uses the standard Tukey fence Q3 + 1.5 * IQR; requires at least 4 students
+    for the quartiles to be meaningful.
+    """
     if absences.empty:
         return []
     totals = absences.groupby(["student_id", "student_code"])["hours"].sum()

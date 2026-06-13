@@ -7,7 +7,7 @@ from app.pipeline.runner import run_import
 
 
 def _seed(db):
-    """Importe un jeu de donnees reduit mais structure : classes, modules, periodes."""
+    """Import a small but structured dataset: classes, modules, periods."""
     students = pd.DataFrame(
         {
             "student_code": [f"S{i}" for i in range(1, 13)],
@@ -18,7 +18,7 @@ def _seed(db):
     )
     rows = []
     for i in range(1, 13):
-        base = 5 if i <= 4 else 12 if i <= 8 else 17  # cohortes faible, moyenne, forte
+        base = 5 if i <= 4 else 12 if i <= 8 else 17  # low, average, strong cohorts
         for mod in ["M1", "M2"]:
             for period, delta in [("S1", 0), ("S2", -1)]:
                 rows.append(
@@ -56,7 +56,7 @@ def test_kpis_computed_from_data(db):
     assert k["n_grades"] == 48
     assert 0 <= k["success_rate"] <= 1
     assert k["overall_average"] is not None
-    assert k["n_at_risk"] >= 1  # la cohorte faible
+    assert k["n_at_risk"] >= 1  # the low cohort
 
 
 def test_module_and_class_analysis(db):
@@ -85,5 +85,5 @@ def test_student_detail_has_rank_and_progression(db):
     assert detail is not None
     assert detail["rank"] is not None
     assert detail["class_size"] == 6
-    assert len(detail["progression"]) == 2  # S1 et S2
+    assert len(detail["progression"]) == 2  # S1 and S2
     assert detail["recommendations"]

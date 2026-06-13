@@ -21,19 +21,19 @@ def test_clean_drops_duplicates_and_clamps_grades():
         {
             "student_code": ["S1", "S1", "S2"],
             "module_code": ["M1", "M1", "M1"],
-            "value": [12, 12, 27.5],  # une ligne en doublon, une note hors bornes
+            "value": [12, 12, 27.5],  # one duplicate row, one out-of-range grade
         }
     )
     cleaned, warnings = cleaner.clean(df, "grades")
-    # Le doublon est retire, il reste 2 lignes.
+    # The duplicate is removed, leaving 2 rows.
     assert len(cleaned) == 2
-    # La note hors bornes devient NA.
+    # The out-of-range grade becomes NA.
     assert cleaned["value"].isna().sum() == 1
     assert any("doublon" in w.lower() for w in warnings)
 
 
 def test_validate_missing_required_column():
-    df = pd.DataFrame({"student_code": ["S1"]})  # module_code et value manquants
+    df = pd.DataFrame({"student_code": ["S1"]})  # module_code and value missing
     errors, _ = validator.validate(df, "grades")
     assert errors and "Colonnes obligatoires manquantes" in errors[0]
 

@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from app.models import Absence, AppClass, Grade, Module, Student
 
 
-# Les classes, modules et etudiants sont crees a la volee s'ils n'existent pas
-# encore, pour pouvoir importer les fichiers dans n'importe quel ordre.
+# Classes, modules and students are created on the fly if they don't exist yet,
+# so files can be imported in any order.
 def _get_or_create_class(db: Session, name: str | None, row: dict) -> int | None:
     if not name:
         return None
@@ -45,14 +45,14 @@ def _get_or_create_student(db: Session, code: str, row: dict) -> int:
 
 
 def load(db: Session, df: pd.DataFrame, dtype: str) -> int:
-    """Insere les lignes nettoyees en base. Renvoie le nombre de lignes ecrites."""
+    """Insert the cleaned rows into the database. Return the number of rows written."""
     written = 0
     for raw in df.to_dict(orient="records"):
-        # pandas met NaN pour les vides, on repasse a None pour la base
+        # pandas uses NaN for blanks; convert back to None for the database
         row = {k: (None if pd.isna(v) else v) for k, v in raw.items()}
 
         if dtype == "students":
-            # un import d'etudiants met a jour la fiche si le code existe deja (upsert)
+            # a student import updates the existing record if the code already exists (upsert)
             code = str(row["student_code"])
             st = db.scalar(select(Student).where(Student.student_code == code))
             class_id = _get_or_create_class(db, row.get("class_name"), row)

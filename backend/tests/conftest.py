@@ -11,7 +11,7 @@ import app.core.database as database
 
 @pytest.fixture()
 def db():
-    """Une session SQLite en memoire isolee pour chaque test."""
+    """Provide an isolated in-memory SQLite session for each test."""
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
@@ -19,7 +19,7 @@ def db():
     )
     TestSession = sessionmaker(bind=engine)
 
-    # Pointe la fabrique de sessions de l'app vers le moteur de test.
+    # Point the app's session factory at the test engine.
     database.engine = engine
     database.SessionLocal = TestSession
 

@@ -1,6 +1,6 @@
-"""Exporte le schema de la base en DDL PostgreSQL vers schema.sql.
+"""Export the database schema as PostgreSQL DDL to schema.sql.
 
-A lancer depuis backend/ :  python export_schema.py
+Run from backend/:  python export_schema.py
 """
 
 from pathlib import Path
@@ -9,7 +9,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.schema import CreateTable
 
 from app.core.database import Base
-import app.models  # noqa: F401  (remplit la metadata)
+import app.models  # noqa: F401  (populates the metadata)
 
 
 def main() -> None:

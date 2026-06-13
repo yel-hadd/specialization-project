@@ -12,7 +12,7 @@ import app.core.database as database
 
 @pytest.fixture()
 def client():
-    """TestClient adosse a une base SQLite en memoire neuve."""
+    """Provide a TestClient backed by a fresh in-memory SQLite database."""
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
     )
@@ -45,14 +45,14 @@ def test_protected_route_requires_token(client):
 
 
 def test_register_login_and_access(client):
-    # Cree un utilisateur.
+    # Create a user.
     r = client.post(
         "/auth/register",
         json={"email": "teacher@edu.io", "password": "secret123"},
     )
     assert r.status_code == 201
 
-    # Connexion via le formulaire mot de passe OAuth2.
+    # Log in via the OAuth2 password form.
     r = client.post(
         "/auth/login",
         data={"username": "teacher@edu.io", "password": "secret123"},
@@ -60,7 +60,7 @@ def test_register_login_and_access(client):
     assert r.status_code == 200
     token = r.json()["access_token"]
 
-    # Accede a une route protegee avec le token.
+    # Access a protected route with the token.
     r = client.get("/analytics/kpis", headers={"Authorization": f"Bearer {token}"})
     assert r.status_code == 200
     assert "n_students" in r.json()

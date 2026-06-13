@@ -1,4 +1,4 @@
-// Client API leger pour le backend FastAPI d'EduTrack.
+// Lightweight API client for the EduTrack FastAPI backend.
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -47,7 +47,7 @@ export const api = {
 };
 
 export async function login(email: string, password: string): Promise<string> {
-  // Le flux password OAuth2 attend username/password en form-encoded.
+  // OAuth2 password flow expects username/password as form-encoded fields.
   const body = new URLSearchParams({ username: email, password });
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",

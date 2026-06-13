@@ -1,4 +1,4 @@
-"""Statistiques descriptives sur les notes (moyenne, mediane, quartiles, etc.)."""
+"""Descriptive statistics on grades (mean, median, quartiles, etc.)."""
 
 import pandas as pd
 
@@ -20,8 +20,7 @@ def _describe(series: pd.Series) -> dict:
     }
 
 
-# Stats par module, triees de la plus faible moyenne a la plus haute
-# (les modules les plus difficiles ressortent en premier).
+# Sorted by ascending mean so the hardest modules surface first.
 def by_module(grades: pd.DataFrame, pass_mark: float) -> list[dict]:
     if grades.empty:
         return []
@@ -68,7 +67,7 @@ def by_class(grades: pd.DataFrame, pass_mark: float) -> list[dict]:
 
 
 def distribution(grades: pd.DataFrame) -> dict:
-    """Histogramme des notes par tranches de 1 point, de 0 a 20."""
+    """Build a grade histogram in 1-point buckets from 0 to 20."""
     if grades.empty:
         return {"edges": [], "counts": []}
     buckets = pd.cut(grades["value"], bins=range(0, 21), include_lowest=True)

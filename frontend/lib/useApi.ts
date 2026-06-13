@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
-// Hook GET simple avec gestion du chargement et des erreurs.
+// GET hook tracking loading/error state; pass null to skip the request.
 export function useFetch<T>(path: string | null) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,17 +1,19 @@
-"""Score de risque (a base de regles) et segmentation des etudiants.
+"""Rule-based risk scoring and student segmentation.
 
-Le score (0 a 100) combine trois signaux :
-  - moyenne faible par rapport au seuil de validation
-  - taux d'absence eleve par rapport au volume horaire attendu
-  - baisse de performance entre la premiere et la derniere periode
-Le score donne ensuite un segment : excellent, stable, moyen, fragile, a_risque.
+The score (0-100) is a weighted blend of three signals:
+  - low average relative to the pass mark (weight 50)
+  - high absence rate relative to expected hours (weight 30)
+  - performance drop between the first and last period (weight 20)
+The 50/30/20 split makes the average the dominant driver while still letting
+absences and a declining trend push borderline students up. The score then maps
+to a segment: excellent, stable, moyen, fragile, a_risque.
 """
 
 import pandas as pd
 
 
 def _period_progression(g: pd.DataFrame) -> list[dict]:
-    """Moyenne par periode, dans l'ordre, pour les notes d'un etudiant."""
+    """Compute one student's average per period, in chronological order."""
     if g.empty or g["period"].isna().all():
         return []
     prog = (
@@ -26,7 +28,7 @@ def _period_progression(g: pd.DataFrame) -> list[dict]:
 
 
 def _drop(progression: list[dict]) -> float:
-    """Points perdus entre la premiere et la derniere periode (0 si en progres)."""
+    """Return points lost between the first and last period (0 if improving)."""
     if len(progression) < 2:
         return 0.0
     return max(0.0, progression[0]["average"] - progression[-1]["average"])
@@ -35,9 +37,9 @@ def _drop(progression: list[dict]) -> float:
 def risk_table(
     grades: pd.DataFrame, absences: pd.DataFrame, thresholds: dict
 ) -> pd.DataFrame:
-    """Score de risque et segment, un par etudiant.
+    """Compute the risk score and segment, one row per student.
 
-    Colonnes : student_id, average, absence_hours, absence_rate, drop, risk_score, segment.
+    Columns: student_id, average, absence_hours, absence_rate, drop, risk_score, segment.
     """
     if grades.empty:
         return pd.DataFrame(
@@ -66,7 +68,7 @@ def risk_table(
         a_hours = float(abs_hours.get(sid, 0.0))
         a_rate = a_hours / expected_hours if expected_hours else 0.0
 
-        # chaque composante est plafonnee a son poids fixe
+        # each component is capped at its fixed weight
         low_avg = max(0.0, (pass_mark - avg) / pass_mark) if avg < pass_mark else 0.0
         score = (
             min(1.0, low_avg) * 50
@@ -103,7 +105,7 @@ def segment_for(score: float, average: float, pass_mark: float) -> str:
 
 
 def recommendations(row: dict, thresholds: dict) -> list[str]:
-    """Actions pedagogiques en clair pour un etudiant."""
+    """Build plain-language teaching actions for a student."""
     recs: list[str] = []
     if row.get("average", 20) < thresholds["pass_mark"]:
         recs.append("Mettre en place un suivi personnalise et un soutien sur les modules faibles.")

@@ -22,7 +22,7 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
-# Entites principales
+# Core entities
 class ClassOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -94,7 +94,7 @@ class ImportResult(BaseModel):
     warnings: list[str] = []
 
 
-# Alertes
+# Alerts
 class AlertOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -119,5 +119,5 @@ class StudentDetail(BaseModel):
     risk_segment: str
     grades: list[GradeOut]
     absences: list[AbsenceOut]
-    progression: list[dict]  # liste de {period, average}
+    progression: list[dict]  # list of {period, average}
     recommendations: list[str]

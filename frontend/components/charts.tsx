@@ -125,7 +125,7 @@ export function CorrelationHeatmap({ data }: { data: CorrelationMatrix }) {
     return <p className="text-sm text-slate-400">Pas assez de donnees.</p>;
   }
   const color = (v: number) => {
-    // Bleu pour le positif, rouge pour le negatif, l'intensite suit la magnitude.
+    // Blue for positive, red for negative; opacity tracks the magnitude.
     const a = Math.min(1, Math.abs(v));
     return v >= 0
       ? `rgba(29, 78, 216, ${a})`

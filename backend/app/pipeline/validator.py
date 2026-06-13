@@ -4,10 +4,9 @@ from app.pipeline.schema_spec import REQUIRED_COLUMNS
 
 
 def validate(df: pd.DataFrame, dtype: str) -> tuple[list[str], list[str]]:
-    """Verifie les colonnes obligatoires et les valeurs requises.
+    """Check the required columns and required values.
 
-    Renvoie (erreurs, avertissements). Une erreur bloque l'import, un avertissement
-    est juste informatif.
+    Return (errors, warnings). An error blocks the import; a warning is informational only.
     """
     errors: list[str] = []
     warnings: list[str] = []
@@ -29,7 +28,7 @@ def validate(df: pd.DataFrame, dtype: str) -> tuple[list[str], list[str]]:
 
 
 def drop_invalid_rows(df: pd.DataFrame, dtype: str) -> tuple[pd.DataFrame, int]:
-    """Supprime les lignes ou un champ obligatoire manque. Renvoie (frame, nb_rejetees)."""
+    """Drop rows where a required field is missing. Return (frame, n_rejected)."""
     required = REQUIRED_COLUMNS.get(dtype, [])
     before = len(df)
     df = df.dropna(subset=[c for c in required if c in df.columns])

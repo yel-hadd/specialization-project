@@ -10,9 +10,9 @@ from app.pipeline.schema_spec import detect_type
 def run_import(
     db: Session, filename: str, content: bytes, dtype: str | None
 ) -> dict:
-    """Enchaine tout le pipeline : lecture, validation, nettoyage, chargement, journalisation.
+    """Run the full pipeline: read, validate, clean, load, log.
 
-    Renvoie un resume conforme au schema ImportResult.
+    Return a summary matching the ImportResult schema.
     """
     errors: list[str] = []
     warnings: list[str] = []
@@ -44,13 +44,13 @@ def run_import(
             status = "partial" if rows_rejected else "success"
         else:
             status = "failed"
-    except Exception as exc:  # noqa: BLE001 - on garde la trace de toute erreur dans le log
+    except Exception as exc:  # noqa: BLE001 - record any error in the import log
         errors.append(str(exc))
         status = "failed"
         rows_processed = 0
         dtype = dtype or "unknown"
 
-    # En cas d'echec, on annule les ecritures partielles avant de journaliser l'import
+    # On failure, roll back partial writes before logging the import
     if status == "failed":
         db.rollback()
 

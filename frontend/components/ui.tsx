@@ -1,4 +1,4 @@
-// Petits composants de presentation reutilises sur plusieurs pages.
+// Small presentational components reused across pages.
 
 const SEGMENT_STYLES: Record<string, string> = {
   excellent: "bg-emerald-100 text-emerald-800",

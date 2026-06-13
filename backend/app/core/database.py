@@ -10,11 +10,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 class Base(DeclarativeBase):
-    """Classe de base pour tous les modeles ORM."""
+    """Base class for all ORM models."""
 
 
 def get_db() -> Generator[Session, None, None]:
-    """Dependance FastAPI qui fournit une session de base de donnees."""
+    """FastAPI dependency that provides a database session."""
     db = SessionLocal()
     try:
         yield db

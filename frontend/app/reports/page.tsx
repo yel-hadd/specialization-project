@@ -5,7 +5,7 @@ import { PageTitle } from "@/components/ui";
 import { API_URL, getToken } from "@/lib/api";
 
 export default function ReportsPage() {
-  // On passe par fetch pour attacher le JWT, puis on recupere le blob.
+  // Use fetch (not a plain link) to attach the JWT, then download the blob.
   async function open(format: "html" | "pdf") {
     const res = await fetch(`${API_URL}/reports/${format}`, {
       headers: { Authorization: `Bearer ${getToken()}` },

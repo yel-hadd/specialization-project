@@ -31,7 +31,7 @@ class User(Base):
 
 
 class AppClass(Base):
-    """Une classe ou un groupe d'etudiants (nomme AppClass pour eviter le mot-cle `class`)."""
+    """A class or group of students (named AppClass to avoid the `class` keyword)."""
 
     __tablename__ = "classes"
 
@@ -111,7 +111,7 @@ class Absence(Base):
     )
     date: Mapped[date | None] = mapped_column(Date, nullable=True)
     hours: Mapped[float] = mapped_column(Float, default=0.0)
-    type: Mapped[str] = mapped_column(String(20), default="absence")  # absence ou retard
+    type: Mapped[str] = mapped_column(String(20), default="absence")  # absence or lateness
     justified: Mapped[bool] = mapped_column(Boolean, default=False)
 
     student: Mapped["Student"] = relationship(back_populates="absences")
@@ -122,14 +122,14 @@ class ImportLog(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     filename: Mapped[str] = mapped_column(String(255))
-    type: Mapped[str] = mapped_column(String(40))  # students, grades ou absences
+    type: Mapped[str] = mapped_column(String(40))  # students, grades or absences
     imported_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=_now
     )
     rows_processed: Mapped[int] = mapped_column(Integer, default=0)
     rows_rejected: Mapped[int] = mapped_column(Integer, default=0)
     status: Mapped[str] = mapped_column(String(20), default="success")
-    error_log: Mapped[str | None] = mapped_column(Text, nullable=True)  # chaine JSON
+    error_log: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON string
 
 
 class Alert(Base):
@@ -150,7 +150,7 @@ class Alert(Base):
 
 
 class Setting(Base):
-    """Stockage cle/valeur pour les seuils pedagogiques ajustables."""
+    """Key/value storage for the adjustable academic thresholds."""
 
     __tablename__ = "settings"
     __table_args__ = (UniqueConstraint("key", name="uq_settings_key"),)

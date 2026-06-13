@@ -1,19 +1,19 @@
-"""Colonnes attendues par type de fichier et alias de noms de colonnes.
+"""Expected columns per file type and column-name aliases.
 
-Le cleaner normalise les en-tetes en snake_case, puis ramene les alias connus
-(variantes francaises et anglaises) vers les noms canoniques utilises ensuite.
+The cleaner normalizes headers to snake_case, then maps known aliases (French and
+English variants) to the canonical names used downstream.
 """
 
-# Colonnes obligatoires par type d'import (noms canoniques)
+# Required columns per import type (canonical names)
 REQUIRED_COLUMNS = {
     "students": ["student_code", "first_name", "last_name"],
     "grades": ["student_code", "module_code", "value"],
     "absences": ["student_code", "date", "hours"],
 }
 
-# Alias : en-tete normalise -> nom canonique
+# Aliases: normalized header -> canonical name
 ALIASES = {
-    # identite etudiant
+    # student identity
     "code_etudiant": "student_code",
     "code_student": "student_code",
     "matricule": "student_code",
@@ -24,7 +24,7 @@ ALIASES = {
     "lastname": "last_name",
     "courriel": "email",
     "mail": "email",
-    # classe
+    # class
     "classe": "class_name",
     "class": "class_name",
     "groupe": "class_name",
@@ -38,7 +38,7 @@ ALIASES = {
     "nom_module": "module_name",
     "coefficient": "coefficient",
     "coef": "coefficient",
-    # note
+    # grade
     "note": "value",
     "valeur": "value",
     "grade": "value",
@@ -56,7 +56,7 @@ ALIASES = {
 
 
 def detect_type(columns: list[str]) -> str | None:
-    """Devine le type de fichier a partir de ses colonnes (au mieux)."""
+    """Guess the file type from its columns (best effort)."""
     cols = set(columns)
     if {"value"} & cols and {"module_code"} & cols:
         return "grades"

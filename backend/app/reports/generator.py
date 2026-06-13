@@ -1,4 +1,4 @@
-"""Genere un rapport pedagogique en HTML ou PDF (Bonus C)."""
+"""Generate a teaching report in HTML or PDF (Bonus C)."""
 
 import base64
 import io
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import matplotlib
 
-matplotlib.use("Agg")  # backend sans affichage, pas besoin d'ecran
+matplotlib.use("Agg")  # headless backend, no display required
 import matplotlib.pyplot as plt  # noqa: E402
 from jinja2 import Environment, FileSystemLoader, select_autoescape  # noqa: E402
 
@@ -71,7 +71,7 @@ def render_html(db) -> str:
 
 
 def render_pdf(db) -> bytes:
-    from weasyprint import HTML  # import tardif, dependance lourde
+    from weasyprint import HTML  # imported lazily; heavy dependency
 
     html = render_html(db)
     return HTML(string=html).write_pdf()

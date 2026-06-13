@@ -1,4 +1,4 @@
-"""Couche d'orchestration : transforme les donnees de la base en payloads renvoyes par l'API."""
+"""Orchestration layer: turn database records into the payloads returned by the API."""
 
 import pandas as pd
 from sqlalchemy import select
@@ -18,7 +18,7 @@ DEFAULT_THRESHOLDS = {
 
 
 def get_thresholds(db: Session) -> dict:
-    """Seuils issus de la table settings, avec repli sur les valeurs par defaut."""
+    """Read thresholds from the settings table, falling back to defaults."""
     values = {s.key: s.value for s in db.scalars(select(Setting)).all()}
     return {**DEFAULT_THRESHOLDS, **values}
 
@@ -51,8 +51,8 @@ def kpis(db: Session) -> dict:
     rt = risk.risk_table(grades, absences, th)
     n_at_risk = int((rt["segment"].isin(["a_risque", "fragile"])).sum()) if not rt.empty else 0
 
-    # progression globale : variation de la moyenne de la promo entre la premiere
-    # et la derniere periode (positif = amelioration). None s'il n'y a qu'une periode.
+    # Overall progression: change in the cohort average between the first and
+    # last period (positive = improvement). None when there is only one period.
     progression = None
     if grades["period"].notna().any():
         per_period = (
@@ -88,7 +88,7 @@ def grade_distribution(
     class_id: int | None = None,
     period: str | None = None,
 ) -> dict:
-    """Distribution des notes, filtrable par module, classe et/ou periode."""
+    """Compute the grade distribution, filterable by module, class, and/or period."""
     grades = grades_frame(db)
     if not grades.empty:
         if module_id is not None:
@@ -101,7 +101,7 @@ def grade_distribution(
 
 
 def periods(db: Session) -> list[str]:
-    """Periodes d'evaluation distinctes presentes dans les donnees, triees."""
+    """Return the distinct assessment periods present in the data, sorted."""
     grades = grades_frame(db)
     if grades.empty:
         return []
@@ -123,7 +123,7 @@ def anomaly_report(db: Session) -> dict:
 
 
 def segmentation_summary(db: Session) -> dict:
-    """Effectifs par segment (utilise sur le tableau de bord)."""
+    """Count students per segment (used on the dashboard)."""
     th = get_thresholds(db)
     rt = risk.risk_table(grades_frame(db), absences_frame(db), th)
     if rt.empty:
@@ -179,7 +179,7 @@ def student_detail(db: Session, student_id: int) -> dict | None:
     absence_hours = round(float(a["hours"].sum()), 1) if not a.empty else 0.0
     absence_rate = round(absence_hours / th["expected_hours"], 3) if th["expected_hours"] else 0.0
 
-    # rang dans la classe selon la moyenne
+    # rank within the class by average
     rank = class_size = None
     if not g.empty and pd.notna(srow["class_id"]):
         peers = grades[grades["class_id"] == srow["class_id"]]

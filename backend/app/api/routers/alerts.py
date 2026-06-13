@@ -25,11 +25,11 @@ def _severity(score: float) -> str:
 def generate_alerts(
     db: Session = Depends(get_db), _: User = Depends(get_current_user)
 ):
-    """Recalcule les alertes a partir des donnees actuelles. Remplace les alertes auto non resolues."""
+    """Recompute alerts from current data, replacing unresolved auto alerts."""
     th = service.get_thresholds(db)
     rt = risk_table(grades_frame(db), absences_frame(db), th)
 
-    # on purge les anciennes alertes non resolues pour repartir de l'etat courant
+    # purge old unresolved alerts so we restart from the current state
     db.execute(delete(Alert).where(Alert.resolved == False))  # noqa: E712
 
     created = 0
@@ -67,8 +67,8 @@ def list_alerts(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    # ordre stable: severite la plus haute d'abord, puis par etudiant,
-    # comme ca regenerer les alertes ne melange pas la liste
+    # stable order: highest severity first, then by student, so regenerating
+    # alerts does not reshuffle the list
     severity_rank = case(
         {"high": 0, "medium": 1, "low": 2}, value=Alert.severity, else_=3
     )

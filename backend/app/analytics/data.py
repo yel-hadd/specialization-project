@@ -1,4 +1,4 @@
-"""Charge les donnees de la base dans des DataFrames pandas pour l'analyse."""
+"""Load database records into pandas DataFrames for analysis."""
 
 import pandas as pd
 from sqlalchemy import select
@@ -8,7 +8,7 @@ from app.models import Absence, AppClass, Grade, Module, Student
 
 
 def grades_frame(db: Session) -> pd.DataFrame:
-    """Une ligne par note, jointe aux infos de l'etudiant, de sa classe et du module."""
+    """One row per grade, joined with student, class, and module fields."""
     rows = db.execute(
         select(
             Grade.id,
@@ -38,7 +38,7 @@ def grades_frame(db: Session) -> pd.DataFrame:
 
 
 def absences_frame(db: Session) -> pd.DataFrame:
-    """Une ligne par absence, jointe a l'etudiant et a sa classe."""
+    """One row per absence, joined with the student and class."""
     rows = db.execute(
         select(
             Absence.id,

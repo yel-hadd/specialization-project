@@ -15,6 +15,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 export default function AlertsPage() {
   const [refresh, setRefresh] = useState(0);
+  // Bump `refresh` to vary the `_` query param and force a refetch after generating alerts.
   const alerts = useFetch<Alert[]>(`/alerts?_=${refresh}`);
   const atRisk = useFetch<AtRiskStudent[]>(`/analytics/at-risk?_=${refresh}`);
   const [generating, setGenerating] = useState(false);

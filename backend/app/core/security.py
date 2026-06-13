@@ -25,7 +25,7 @@ def create_access_token(subject: str) -> str:
 
 
 def decode_access_token(token: str) -> str | None:
-    """Renvoie le sujet (email de l'utilisateur), ou None si le token est invalide."""
+    """Return the subject (user email), or None if the token is invalid."""
     try:
         payload = jwt.decode(
             token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]

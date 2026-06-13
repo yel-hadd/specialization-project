@@ -6,7 +6,7 @@ from app.pipeline.schema_spec import ALIASES
 
 
 def _normalize_header(name: str) -> str:
-    """Passe un nom de colonne en minuscules, sans accents ni ponctuation, en snake_case."""
+    """Lowercase a column name, strip accents and punctuation, and convert to snake_case."""
     s = str(name).strip().lower()
     accents = str.maketrans("àâäéèêëîïôöùûüç", "aaaeeeeiioouuuc")
     s = s.translate(accents)
@@ -15,14 +15,14 @@ def _normalize_header(name: str) -> str:
 
 
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Normalise les en-tetes puis ramene les alias connus aux noms canoniques."""
+    """Normalize headers, then map known aliases to their canonical names."""
     df = df.rename(columns=_normalize_header)
     df = df.rename(columns={c: ALIASES.get(c, c) for c in df.columns})
     return df
 
 
 def clean(df: pd.DataFrame, dtype: str) -> tuple[pd.DataFrame, list[str]]:
-    """Nettoie un DataFrame deja normalise. Renvoie le frame nettoye et les avertissements."""
+    """Clean an already-normalized DataFrame. Return the cleaned frame and warnings."""
     warnings: list[str] = []
 
     before = len(df)
@@ -30,14 +30,14 @@ def clean(df: pd.DataFrame, dtype: str) -> tuple[pd.DataFrame, list[str]]:
     if len(df) < before:
         warnings.append(f"{before - len(df)} doublons supprimes")
 
-    # On enleve les espaces autour des champs texte
+    # Strip surrounding whitespace from text fields
     text_cols = [c for c in df.columns if df[c].dtype == object]
     for col in text_cols:
         df[col] = df[col].astype(str).str.strip().replace({"nan": None, "": None})
 
     if dtype == "grades" and "value" in df.columns:
         df["value"] = pd.to_numeric(df["value"], errors="coerce")
-        # Une note doit etre entre 0 et 20 ; le reste est mis a NA puis rejete
+        # A grade must be between 0 and 20; anything else is set to NA and rejected
         oor = df["value"].between(0, 20) | df["value"].isna()
         if (~oor).any():
             warnings.append(
@@ -47,7 +47,7 @@ def clean(df: pd.DataFrame, dtype: str) -> tuple[pd.DataFrame, list[str]]:
 
     if dtype == "absences" and "hours" in df.columns:
         df["hours"] = pd.to_numeric(df["hours"], errors="coerce").fillna(0.0)
-        # "oui", "yes", "1"... comptent comme justifie, tout le reste comme non
+        # "oui", "yes", "1"... count as justified; everything else as not justified
         if "justified" in df.columns:
             df["justified"] = (
                 df["justified"]
@@ -61,7 +61,7 @@ def clean(df: pd.DataFrame, dtype: str) -> tuple[pd.DataFrame, list[str]]:
     if "coefficient" in df.columns:
         df["coefficient"] = pd.to_numeric(df["coefficient"], errors="coerce").fillna(1.0)
 
-    # Conversion des colonnes de dates ; une date invalide devient NaT
+    # Convert date columns; an invalid date becomes NaT
     for col in ("date", "enrollment_date"):
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], errors="coerce").dt.date

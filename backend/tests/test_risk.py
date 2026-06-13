@@ -30,7 +30,7 @@ def test_risk_table_flags_low_average_student():
         {"student_id": [1], "hours": [40.0], "type": ["absence"]}
     )
     rt = risk_table(grades, absences, THRESHOLDS).set_index("student_id")
-    # L'etudiant faible et souvent absent a un risque plus eleve que le bon.
+    # The weak, frequently-absent student scores higher risk than the strong one.
     assert rt.loc[1, "risk_score"] > rt.loc[2, "risk_score"]
     assert rt.loc[1, "segment"] in ("a_risque", "fragile")
     assert rt.loc[2, "segment"] == "excellent"

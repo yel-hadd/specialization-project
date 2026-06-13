@@ -68,7 +68,7 @@ def test_import_unsupported_type_via_api(client):
     headers = _auth(client)
     files = {"file": ("data.json", b"{}", "application/json")}
     r = client.post("/imports", files=files, data={"type": "auto"}, headers=headers)
-    # Le pipeline enregistre un import echoue au lieu de lever une 500.
+    # The pipeline records a failed import instead of raising a 500.
     assert r.status_code == 200
     assert r.json()["status"] == "failed"
 
@@ -92,7 +92,7 @@ def test_alert_generation_flow(client):
 
     gen = client.post("/alerts/generate", headers=headers)
     assert gen.status_code == 200
-    assert gen.json()["created"] >= 1  # l'etudiant en echec declenche une alerte low_average
+    assert gen.json()["created"] >= 1  # the failing student triggers a low_average alert
 
     alerts = client.get("/alerts", headers=headers).json()
     assert any(a["alert_type"] == "low_average" for a in alerts)

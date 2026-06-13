@@ -29,7 +29,7 @@ def test_excel_import_flow(db):
 
     r1 = run_import(db, "students.xlsx", _xlsx_bytes(students), "students")
     assert r1["status"] == "success"
-    r2 = run_import(db, "grades.xlsx", _xlsx_bytes(grades), "auto")  # type detecte automatiquement
+    r2 = run_import(db, "grades.xlsx", _xlsx_bytes(grades), "auto")  # type detected automatically
     assert r2["status"] == "success"
     assert r2["type"] == "grades"
 

@@ -1,17 +1,17 @@
-"""Genere des donnees academiques synthetiques pour EduTrack Analytics (entetes en francais).
+"""Generate synthetic academic data for EduTrack Analytics (French column headers).
 
-Produit, dans data/samples/ :
-  - etudiants.csv   (identite + classe)
-  - notes.csv       (une ligne par etudiant/module/periode)
-  - absences.xlsx   (absences et retards)
+Produces, in data/samples/:
+  - etudiants.csv   (identity + class)
+  - notes.csv       (one row per student/module/period)
+  - absences.xlsx   (absences and late arrivals)
 
-ainsi qu'une serie de fichiers limites dans data/samples/edge_cases/ pour tester
-le pipeline de validation et de nettoyage : doublons, valeurs manquantes, notes
-hors bornes, dates invalides, colonnes absentes, type non gere, alias anglais.
+plus a set of edge-case files in data/samples/edge_cases/ to exercise the
+validation and cleaning pipeline: duplicates, missing values, out-of-range
+grades, invalid dates, missing columns, unsupported type, English aliases.
 
-Les fichiers principaux sont propres (aucune ligne cassee) pour que le dashboard et
-les captures restent realistes. Une "ability" latente par etudiant correle notes et
-absences, ce qui donne une structure exploitable cote analytics.
+The main files are clean (no broken rows) so the dashboard and screenshots stay
+realistic. A latent per-student "ability" correlates grades and absences, giving
+analytics an exploitable structure.
 """
 
 from pathlib import Path
@@ -67,7 +67,7 @@ def make_students(n_per_class: int = 30) -> pd.DataFrame:
                 "classe": cls["nom"],
                 "niveau": cls["niveau"],
                 "annee": cls["annee"],
-                "ability": float(np.clip(rng.normal(12, 3), 4, 19)),  # latente, retiree plus tard
+                "ability": float(np.clip(rng.normal(12, 3), 4, 19)),  # latent, dropped later
             })
             sid += 1
     return pd.DataFrame(rows)
@@ -114,10 +114,10 @@ def make_absences(students: pd.DataFrame) -> pd.DataFrame:
 
 
 def make_at_risk_profiles(start_id: int):
-    """Quelques etudiants extremes pour que chaque cas apparaisse dans le dashboard :
-    moyenne basse (segment a_risque + alerte low_average), beaucoup d'absences
-    (alerte high_absence + valeur aberrante d'absence) et une chute S1->S2
-    (alerte performance_drop).
+    """Build a few extreme students so every case shows up in the dashboard:
+    low average (a_risque segment + low_average alert), many absences
+    (high_absence alert + absence outlier), and an S1->S2 drop
+    (performance_drop alert).
     """
     students, grades, absences = [], [], []
     base = pd.Timestamp("2025-09-15")
@@ -147,7 +147,7 @@ def make_at_risk_profiles(start_id: int):
             grades.append({"code_etudiant": code, "code_module": code_module,
                            "nom_module": nom_module, "coefficient": coef,
                            "note": s2, "evaluation": "Examen", "periode": "S2"})
-        for _ in range(int(rng.integers(13, 18))):  # environ 45 a 65 heures au total
+        for _ in range(int(rng.integers(13, 18))):  # roughly 45 to 65 hours total
             day = base + pd.Timedelta(days=int(rng.integers(0, 180)))
             absences.append({
                 "code_etudiant": code,
@@ -161,8 +161,8 @@ def make_at_risk_profiles(start_id: int):
 
 
 def write_edge_cases() -> None:
-    """Petits fichiers qui couvrent chacun une regle de validation ou de nettoyage."""
-    # Lignes de notes en doublon.
+    """Write small files, each covering one validation or cleaning rule."""
+    # Duplicate grade rows.
     pd.DataFrame({
         "code_etudiant": ["STU0001", "STU0001", "STU0002"],
         "code_module": ["MATH101", "MATH101", "MATH101"],
@@ -170,7 +170,7 @@ def write_edge_cases() -> None:
         "periode": ["S1", "S1", "S1"],
     }).to_csv(EDGE / "notes_doublons.csv", index=False)
 
-    # Notes hors bornes et non numeriques.
+    # Out-of-range and non-numeric grades.
     pd.DataFrame({
         "code_etudiant": ["STU0001", "STU0002", "STU0003"],
         "code_module": ["MATH101", "MATH101", "MATH101"],
@@ -178,7 +178,7 @@ def write_edge_cases() -> None:
         "periode": ["S1", "S1", "S1"],
     }).to_csv(EDGE / "notes_hors_bornes.csv", index=False)
 
-    # Valeurs obligatoires manquantes (code_etudiant / note vides).
+    # Missing required values (empty code_etudiant / note).
     pd.DataFrame({
         "code_etudiant": ["STU0001", "", "STU0003"],
         "code_module": ["MATH101", "MATH101", "MATH101"],
@@ -186,14 +186,14 @@ def write_edge_cases() -> None:
         "periode": ["S1", "S1", "S1"],
     }).to_csv(EDGE / "notes_valeurs_manquantes.csv", index=False)
 
-    # Fichier etudiants sans la colonne obligatoire 'nom'.
+    # Students file missing the required 'nom' column.
     pd.DataFrame({
         "code_etudiant": ["STU9001", "STU9002"],
         "prenom": ["Test", "Essai"],
         "classe": ["B1-INFO", "B1-INFO"],
     }).to_csv(EDGE / "etudiants_colonne_manquante.csv", index=False)
 
-    # Absences avec une date invalide.
+    # Absences with an invalid date.
     pd.DataFrame({
         "code_etudiant": ["STU0001", "STU0002"],
         "date": ["2025-11-13", "date-invalide"],
@@ -201,7 +201,7 @@ def write_edge_cases() -> None:
         "type_absence": ["absence", "retard"],
     }).to_excel(EDGE / "absences_date_invalide.xlsx", index=False)
 
-    # Alias anglais : doivent quand meme correspondre aux colonnes internes.
+    # English aliases: must still map to the internal columns.
     pd.DataFrame({
         "student_code": ["STU8001", "STU8002"],
         "first_name": ["Alan", "Grace"],
@@ -209,7 +209,7 @@ def write_edge_cases() -> None:
         "class": ["B3-DATA", "B3-DATA"],
     }).to_csv(EDGE / "etudiants_alias_anglais.csv", index=False)
 
-    # Type de fichier non gere.
+    # Unsupported file type.
     (EDGE / "fichier_invalide.json").write_text('{"foo": "bar"}')
 
 
@@ -218,7 +218,7 @@ def main() -> None:
     grades = make_grades(students)
     absences = make_absences(students)
 
-    # Ajoute une petite cohorte a risque pour que le dashboard montre chaque cas.
+    # Add a small at-risk cohort so the dashboard shows every case.
     ar_students, ar_grades, ar_absences = make_at_risk_profiles(len(students) + 1)
     students_out = pd.concat(
         [students.drop(columns=["ability"]), ar_students], ignore_index=True

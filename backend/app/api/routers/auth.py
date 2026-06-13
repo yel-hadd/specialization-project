@@ -32,7 +32,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)) -> User:
 def login(
     form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ) -> Token:
-    # le formulaire OAuth2 envoie `username`, ici on le traite comme l'email
+    # the OAuth2 form sends `username`; we treat it as the email here
     user = db.scalar(select(User).where(User.email == form.username))
     if not user or not verify_password(form.password, user.hashed_password):
         raise HTTPException(
