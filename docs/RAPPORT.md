@@ -44,10 +44,10 @@ PostgreSQL, lu par la couche d'analyse, exposé par l'API, puis affiché dans le
 
 | Couche | Contenu |
 |--------|---------|
-| Pipeline | reader, validator, cleaner, transformer, loader |
+| Pipeline | reader, cleaner, validator, loader (orchestrés par `runner`, détection du type via `schema_spec`) |
 | Base PostgreSQL | students, classes, modules, grades, absences, imports, alerts, settings |
 | Analyse | statistiques, corrélations, anomalies, score de risque, segmentation |
-| API (FastAPI) | /auth, /imports, /analytics, /students, /alerts, /reports |
+| API (FastAPI) | /auth, /imports, /analytics, /students, /classes, /modules, /alerts, /reports |
 | Frontend (Next.js) | tableau de bord, visualisations, fiches étudiants, rapports |
 
 Côté backend, chaque module a un rôle précis : `core` (configuration, base, sécurité),
@@ -78,12 +78,13 @@ Le pipeline applique six étapes successives, orchestrées par `app/pipeline/run
 
 1. **Lecture** (`reader.py`) : lecture du CSV ou de l'Excel dans un DataFrame pandas.
 2. **Normalisation** (`cleaner.normalize_columns`) : mise en forme des en-têtes et correspondance
-   des alias français et anglais vers des noms canoniques.
+   des alias français et anglais vers des noms canoniques. Le type de fichier (notes, absences…)
+   est ensuite détecté automatiquement à partir des colonnes (`schema_spec.detect_type`).
 3. **Validation** (`validator.py`) : vérification des colonnes obligatoires, des valeurs manquantes
    et des formats. Les erreurs bloquantes interrompent l'import.
 4. **Nettoyage** (`cleaner.clean`) : suppression des doublons, conversion des types, traitement des
    valeurs nulles, suppression des notes hors de l'intervalle 0 à 20.
-5. **Transformation / chargement** (`loader.py`) : résolution ou création des classes et modules,
+5. **Chargement** (`loader.py`) : résolution ou création des classes et modules,
    insertion des entités dans PostgreSQL au sein d'une transaction.
 6. **Journalisation** : chaque import est enregistré dans la table `imports` avec le nombre de
    lignes traitées, rejetées et le statut.
