@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.analytics import anomalies, correlation, descriptive, risk
 from app.analytics.data import absences_frame, grades_frame, students_frame
+from app.analytics.util import ordered_periods
 from app.core.config import settings
 from app.models import Setting
 
@@ -55,11 +56,10 @@ def kpis(db: Session) -> dict:
     # last period (positive = improvement). None when there is only one period.
     progression = None
     if grades["period"].notna().any():
-        per_period = (
-            grades.dropna(subset=["period"]).groupby("period")["value"].mean().sort_index()
-        )
-        if len(per_period) >= 2:
-            progression = round(float(per_period.iloc[-1] - per_period.iloc[0]), 2)
+        order = ordered_periods(grades)
+        means = grades.dropna(subset=["period"]).groupby("period")["value"].mean()
+        if len(order) >= 2:
+            progression = round(float(means[order[-1]] - means[order[0]]), 2)
 
     return {
         "n_students": int(len(students)),
@@ -105,7 +105,7 @@ def periods(db: Session) -> list[str]:
     grades = grades_frame(db)
     if grades.empty:
         return []
-    return sorted(p for p in grades["period"].dropna().unique().tolist())
+    return ordered_periods(grades)
 
 
 def correlations(db: Session) -> dict:
@@ -197,7 +197,7 @@ def student_detail(db: Session, student_id: int) -> dict | None:
             "student_code": srow["student_code"],
             "first_name": srow["first_name"],
             "last_name": srow["last_name"],
-            "email": None,
+            "email": srow["email"] if pd.notna(srow["email"]) else None,
             "class_id": int(srow["class_id"]) if pd.notna(srow["class_id"]) else None,
         },
         "class_name": srow["class_name"] if pd.notna(srow["class_name"]) else None,
@@ -214,7 +214,7 @@ def student_detail(db: Session, student_id: int) -> dict | None:
                 "value": float(r["value"]),
                 "assessment_type": r["assessment_type"],
                 "period": r["period"],
-                "date": None,
+                "date": r["date"] if pd.notna(r["date"]) else None,
             }
             for _, r in g.iterrows()
         ],

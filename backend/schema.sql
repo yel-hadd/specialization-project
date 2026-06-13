@@ -7,6 +7,7 @@ CREATE TABLE classes (
 	academic_year VARCHAR(20), 
 	PRIMARY KEY (id)
 );
+CREATE UNIQUE INDEX ix_classes_name ON classes (name);
 
 CREATE TABLE imports (
 	id SERIAL NOT NULL, 
@@ -28,6 +29,7 @@ CREATE TABLE modules (
 	ects INTEGER, 
 	PRIMARY KEY (id)
 );
+CREATE UNIQUE INDEX ix_modules_code ON modules (code);
 
 CREATE TABLE settings (
 	id SERIAL NOT NULL, 
@@ -36,6 +38,7 @@ CREATE TABLE settings (
 	PRIMARY KEY (id), 
 	CONSTRAINT uq_settings_key UNIQUE (key)
 );
+CREATE INDEX ix_settings_key ON settings (key);
 
 CREATE TABLE users (
 	id SERIAL NOT NULL, 
@@ -45,6 +48,7 @@ CREATE TABLE users (
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
 	PRIMARY KEY (id)
 );
+CREATE UNIQUE INDEX ix_users_email ON users (email);
 
 CREATE TABLE students (
 	id SERIAL NOT NULL, 
@@ -57,6 +61,8 @@ CREATE TABLE students (
 	PRIMARY KEY (id), 
 	FOREIGN KEY(class_id) REFERENCES classes (id) ON DELETE SET NULL
 );
+CREATE INDEX ix_students_class_id ON students (class_id);
+CREATE UNIQUE INDEX ix_students_student_code ON students (student_code);
 
 CREATE TABLE absences (
 	id SERIAL NOT NULL, 
@@ -70,6 +76,8 @@ CREATE TABLE absences (
 	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE, 
 	FOREIGN KEY(module_id) REFERENCES modules (id) ON DELETE SET NULL
 );
+CREATE INDEX ix_absences_module_id ON absences (module_id);
+CREATE INDEX ix_absences_student_id ON absences (student_id);
 
 CREATE TABLE alerts (
 	id SERIAL NOT NULL, 
@@ -78,11 +86,13 @@ CREATE TABLE alerts (
 	severity VARCHAR(20) NOT NULL, 
 	message TEXT NOT NULL, 
 	threshold_value FLOAT, 
+	metric_value FLOAT, 
 	created_at TIMESTAMP WITH TIME ZONE NOT NULL, 
 	resolved BOOLEAN NOT NULL, 
 	PRIMARY KEY (id), 
 	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE
 );
+CREATE INDEX ix_alerts_student_id ON alerts (student_id);
 
 CREATE TABLE grades (
 	id SERIAL NOT NULL, 
@@ -96,3 +106,6 @@ CREATE TABLE grades (
 	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE, 
 	FOREIGN KEY(module_id) REFERENCES modules (id) ON DELETE CASCADE
 );
+CREATE INDEX ix_grades_module_id ON grades (module_id);
+CREATE INDEX ix_grades_period ON grades (period);
+CREATE INDEX ix_grades_student_id ON grades (student_id);

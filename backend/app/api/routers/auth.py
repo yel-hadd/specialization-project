@@ -20,7 +20,7 @@ def register(payload: UserCreate, db: Session = Depends(get_db)) -> User:
     user = User(
         email=payload.email,
         hashed_password=hash_password(payload.password),
-        role=payload.role,
+        role="staff",
     )
     db.add(user)
     db.commit()

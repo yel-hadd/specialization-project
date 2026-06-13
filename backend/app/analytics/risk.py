@@ -11,20 +11,19 @@ to a segment: excellent, stable, moyen, fragile, a_risque.
 
 import pandas as pd
 
+from app.analytics.util import ordered_periods
+
 
 def _period_progression(g: pd.DataFrame) -> list[dict]:
     """Compute one student's average per period, in chronological order."""
-    if g.empty or g["period"].isna().all():
+    if g.empty or "period" not in g.columns or g["period"].isna().all():
         return []
-    prog = (
-        g.dropna(subset=["period"])
-        .groupby("period")["value"]
-        .mean()
-        .round(2)
-        .reset_index()
-        .sort_values("period")
-    )
-    return [{"period": r["period"], "average": float(r["value"])} for _, r in prog.iterrows()]
+    means = g.dropna(subset=["period"]).groupby("period")["value"].mean().round(2)
+    return [
+        {"period": p, "average": float(means[p])}
+        for p in ordered_periods(g)
+        if p in means.index
+    ]
 
 
 def _drop(progression: list[dict]) -> float:
@@ -105,16 +104,19 @@ def segment_for(score: float, average: float, pass_mark: float) -> str:
 
 
 def recommendations(row: dict, thresholds: dict) -> list[str]:
-    """Build plain-language teaching actions for a student."""
+    """Return recommendation codes for a student (rendered to text by the client).
+
+    See ``app.core.messages.RECOMMENDATIONS`` for the FR/EN wording of each code.
+    """
     recs: list[str] = []
     if row.get("average", 20) < thresholds["pass_mark"]:
-        recs.append("Mettre en place un suivi personnalise et un soutien sur les modules faibles.")
+        recs.append("personalized_support")
     if row.get("absence_rate", 0) >= thresholds["high_absence_rate"]:
-        recs.append("Envoyer un rappel d'assiduite et contacter l'etudiant.")
+        recs.append("attendance_reminder")
     if row.get("drop", 0) >= thresholds["performance_drop"]:
-        recs.append("Analyser la baisse recente de performance et proposer un point individuel.")
+        recs.append("analyze_drop")
     if not recs:
-        recs.append("Situation stable, poursuivre le suivi habituel.")
+        recs.append("stable")
     return recs
 
 

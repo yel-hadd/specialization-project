@@ -111,7 +111,7 @@ class Absence(Base):
     )
     date: Mapped[date | None] = mapped_column(Date, nullable=True)
     hours: Mapped[float] = mapped_column(Float, default=0.0)
-    type: Mapped[str] = mapped_column(String(20), default="absence")  # absence or lateness
+    type: Mapped[str] = mapped_column(String(20), default="absence")  # "absence" or "retard"
     justified: Mapped[bool] = mapped_column(Boolean, default=False)
 
     student: Mapped["Student"] = relationship(back_populates="absences")
@@ -143,6 +143,8 @@ class Alert(Base):
     severity: Mapped[str] = mapped_column(String(20), default="medium")
     message: Mapped[str] = mapped_column(Text)
     threshold_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # measured value behind the alert (average, absence rate, or point drop)
+    metric_value: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     resolved: Mapped[bool] = mapped_column(Boolean, default=False)
 

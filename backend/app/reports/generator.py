@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from jinja2 import Environment, FileSystemLoader, select_autoescape  # noqa: E402
 
 from app.analytics import service  # noqa: E402
+from app.core import messages  # noqa: E402
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 _env = Environment(
@@ -54,12 +55,18 @@ def _class_chart(db) -> str | None:
 
 def build_context(db) -> dict:
     seg = service.segmentation_summary(db)
+    # The API returns recommendation codes; the (French) report renders them to text.
+    at_risk = service.at_risk_students(db)
+    for s in at_risk:
+        s["recommendations"] = [
+            messages.recommendation_text(code, "fr") for code in s["recommendations"]
+        ]
     return {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
         "kpis": service.kpis(db),
         "modules": service.module_analysis(db),
         "segmentation": seg.get("counts", {}),
-        "at_risk": service.at_risk_students(db),
+        "at_risk": at_risk,
         "dist_chart": _distribution_chart(db),
         "class_chart": _class_chart(db),
     }

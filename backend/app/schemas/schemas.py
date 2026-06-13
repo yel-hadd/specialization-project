@@ -5,9 +5,10 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 
 # Auth
 class UserCreate(BaseModel):
+    # Public self-registration always creates a "staff" account; the role is not
+    # accepted from the request body to prevent privilege escalation to admin.
     email: EmailStr
     password: str
-    role: str = "staff"
 
 
 class UserOut(BaseModel):
@@ -103,6 +104,7 @@ class AlertOut(BaseModel):
     severity: str
     message: str
     threshold_value: float | None = None
+    metric_value: float | None = None
     created_at: dt.datetime
     resolved: bool
 

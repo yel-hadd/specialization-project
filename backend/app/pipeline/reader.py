@@ -14,8 +14,4 @@ def read_file(filename: str, content: bytes) -> pd.DataFrame:
             return pd.read_csv(io.BytesIO(content))
         except UnicodeDecodeError:
             return pd.read_csv(io.BytesIO(content), encoding="latin-1")
-        try:
-            return pd.read_csv(io.BytesIO(content))
-        except UnicodeDecodeError:
-            return pd.read_csv(io.BytesIO(content), encoding="latin-1")
     raise ValueError(f"Type de fichier non supporte : {filename}")

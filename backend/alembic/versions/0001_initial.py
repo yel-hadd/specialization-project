@@ -9,7 +9,7 @@ from typing import Sequence, Union
 from alembic import op
 
 from app.core.database import Base
-import app.models  # noqa: F401  (remplit la metadata)
+import app.models  # noqa: F401  (populates the metadata)
 
 revision: str = "0001"
 down_revision: Union[str, None] = None
@@ -18,7 +18,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Cree tout le schema a partir de la metadata SQLAlchemy.
+    # Create the whole schema from the SQLAlchemy metadata.
     Base.metadata.create_all(op.get_bind())
 
 

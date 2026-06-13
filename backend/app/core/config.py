@@ -19,7 +19,6 @@ class Settings(BaseSettings):
 
     # Default academic thresholds (used to seed the settings table).
     pass_mark: float = 10.0
-    risk_average: float = 10.0
     high_absence_rate: float = 0.15
     performance_drop: float = 3.0
     expected_hours: float = 200.0  # reference total hours used for the absence rate

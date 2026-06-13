@@ -14,6 +14,21 @@ def _normalize_header(name: str) -> str:
     return s.strip("_")
 
 
+_LATENESS_WORDS = {"retard", "retards", "late", "lateness", "tardy", "tardiness", "delay"}
+
+
+def _normalize_absence_type(value) -> str:
+    """Map a free-text absence type to a canonical value: 'absence' or 'retard'.
+
+    Downstream analytics (correlation, lateness vs absence split) rely on these
+    two canonical values, so any French/English/capitalized variant is folded in.
+    """
+    if value is None or (isinstance(value, float) and pd.isna(value)):
+        return "absence"
+    key = str(value).strip().lower()
+    return "retard" if key in _LATENESS_WORDS else "absence"
+
+
 def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Normalize headers, then map known aliases to their canonical names."""
     df = df.rename(columns=_normalize_header)
@@ -56,7 +71,7 @@ def clean(df: pd.DataFrame, dtype: str) -> tuple[pd.DataFrame, list[str]]:
                 .isin(["1", "true", "oui", "yes", "y", "o"])
             )
         if "type" in df.columns:
-            df["type"] = df["type"].fillna("absence")
+            df["type"] = df["type"].map(_normalize_absence_type)
 
     if "coefficient" in df.columns:
         df["coefficient"] = pd.to_numeric(df["coefficient"], errors="coerce").fillna(1.0)

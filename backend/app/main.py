@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -42,8 +43,22 @@ def _seed(db) -> None:
     db.commit()
 
 
+def _check_secrets() -> None:
+    """Warn loudly when the app is running with the shipped default credentials."""
+    if settings.jwt_secret == "change-me-in-production":
+        logging.warning(
+            "JWT_SECRET is still the default value; set a strong secret via the "
+            "JWT_SECRET environment variable before deploying."
+        )
+    if settings.admin_password == "admin123":
+        logging.warning(
+            "ADMIN_PASSWORD is still the default value; change it before deploying."
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    _check_secrets()
     db = SessionLocal()
     try:
         _seed(db)

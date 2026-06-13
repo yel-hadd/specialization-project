@@ -15,6 +15,7 @@ def grades_frame(db: Session) -> pd.DataFrame:
             Grade.value,
             Grade.period,
             Grade.assessment_type,
+            Grade.date,
             Student.id.label("student_id"),
             Student.student_code,
             Student.first_name,
@@ -31,9 +32,9 @@ def grades_frame(db: Session) -> pd.DataFrame:
         .join(AppClass, Student.class_id == AppClass.id, isouter=True)
     ).all()
     return pd.DataFrame(rows, columns=[
-        "id", "value", "period", "assessment_type", "student_id", "student_code",
-        "first_name", "last_name", "class_id", "class_name", "module_id",
-        "module_code", "module_name", "coefficient",
+        "id", "value", "period", "assessment_type", "date", "student_id",
+        "student_code", "first_name", "last_name", "class_id", "class_name",
+        "module_id", "module_code", "module_name", "coefficient",
     ])
 
 
@@ -67,10 +68,12 @@ def students_frame(db: Session) -> pd.DataFrame:
             Student.student_code,
             Student.first_name,
             Student.last_name,
+            Student.email,
             AppClass.id.label("class_id"),
             AppClass.name.label("class_name"),
         ).join(AppClass, Student.class_id == AppClass.id, isouter=True)
     ).all()
     return pd.DataFrame(rows, columns=[
-        "id", "student_code", "first_name", "last_name", "class_id", "class_name",
+        "id", "student_code", "first_name", "last_name", "email",
+        "class_id", "class_name",
     ])
