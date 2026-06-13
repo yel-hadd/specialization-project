@@ -27,6 +27,7 @@ Demonstration video: https://drive.google.com/file/d/1yJYg1_yLmzMC4qEJgLP1PmkmyH
 - Statistiques descriptives, distribution des notes, correlations, detection d'anomalies
 - Detection des etudiants a risque (regles statistiques) et alertes pedagogiques
 - Segmentation des etudiants par niveau (excellent, stable, moyen, fragile, a risque)
+- Interface entierement bilingue (francais / anglais) avec info-bulles explicatives
 - Bonus C: generation automatique de rapports PDF / HTML
 
 ## Demarrage rapide (Docker)
@@ -115,14 +116,14 @@ frontend/                application Next.js
   app/                   pages : login, dashboard, classes, modules,
                          etudiants, anomalies, alertes, imports, rapports
   components/            Shell (navigation), charts, ui
-  lib/                   client API, types, hook de chargement
+  lib/                   client API, types, hook de chargement, i18n (FR/EN)
 
 data/
   generate_synthetic.py  generateur de donnees (entetes francaises)
   samples/               fichiers d'exemple + edge_cases (tests de validation)
 
 notebook/EDA.ipynb       analyse exploratoire (nettoyage, stats, graphiques)
-docs/                    rapport technique (RAPPORT.md / .pdf) + captures d'ecran
+docs/                    rapport technique (RAPPORT.md / .pdf, build_pdf.py) + captures
 docker-compose.yml       orchestration db + backend + frontend
 ```
 

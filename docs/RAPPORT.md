@@ -95,15 +95,17 @@ que le nettoyage et la validation réagissent bien.
 
 ## 6. Analyse exploratoire (EDA)
 
-L'analyse exploratoire est détaillée dans le notebook `notebook/EDA.ipynb`. Principaux résultats :
+L'analyse exploratoire est détaillée dans le notebook `notebook/EDA.ipynb` (exécuté, sorties
+incluses). Principaux résultats sur le jeu de données synthétique :
 
 - **Distribution des notes** : répartition centrée autour du seuil de validation, avec une part
   notable d'étudiants sous la moyenne.
 - **Statistiques descriptives** : moyenne, médiane, écart-type et quartiles calculés par module et
-  par classe, faisant ressortir les modules les plus difficiles.
-- **Corrélations** : corrélation négative entre les heures d'absence et la moyenne, confirmant le
-  lien entre assiduité et performance.
-- **Anomalies** : détection des notes inhabituelles (z-score) et des absences excessives (IQR).
+  par classe, faisant ressortir les modules les plus difficiles et les écarts entre groupes.
+- **Corrélations** : corrélation négative entre les heures d'absence et la moyenne
+  (≈ −0,52), confirmant le lien entre assiduité et performance.
+- **Anomalies** : détection des notes inhabituelles par z-score (19 notes au seuil |z| ≥ 2,5) et
+  des absences excessives par la méthode de Tukey/IQR (7 étudiants au-dessus du seuil).
 
 ## 7. Tableau de bord et visualisations
 
@@ -128,19 +130,27 @@ Le tableau de bord présente au moins cinq visualisations interactives :
 
 *Fiche individuelle : moyenne, classement, évolution par période et recommandations.*
 
+L'interface est entièrement bilingue (français / anglais) : un sélecteur de langue mémorise le
+choix de l'utilisateur et tous les libellés, tableaux, graphiques, segments, alertes et
+recommandations sont traduits. Des info-bulles explicatives accompagnent les indicateurs et les
+seuils (score de risque, taux d'absence, z-score, IQR) pour rendre la lecture intuitive.
+
 ## 8. Détection du risque et alertes
 
 La détection des étudiants à risque repose sur des règles statistiques combinant trois signaux,
 pondérés dans un score de risque de 0 à 100 (`app/analytics/risk.py`) :
 
 - moyenne faible par rapport au seuil de validation ;
-- taux d'absence élevé par rapport au volume horaire attendu ;
-- baisse de performance entre la première et la dernière période.
+- taux d'absence élevé par rapport à un volume horaire de référence ;
+- baisse de performance entre la première et la dernière période (périodes ordonnées
+  chronologiquement, ou par ordre naturel à défaut de date).
 
-Le score détermine un segment : *excellent, stable, moyen, fragile, à risque*. Des alertes
-typées sont générées (moyenne faible, absences élevées, baisse de performance) avec un niveau de
-gravité, et des recommandations pédagogiques concrètes sont proposées (suivi personnalisé, rappel
-d'assiduité, point individuel).
+Le score détermine un segment : *excellent, stable, moyen, fragile, à risque*. Cette segmentation
+repose sur des règles statistiques explicites, et non sur un clustering non supervisé (K-Means),
+qui reste une piste d'extension (Bonus B). Des alertes typées sont générées (moyenne faible,
+absences élevées, baisse de performance) avec un niveau de gravité. L'API renvoie des codes
+d'alerte et de recommandation accompagnés des valeurs mesurées ; l'interface les restitue en
+français ou en anglais, et le rapport PDF/HTML les rend en français.
 
 ![Alertes](screenshots/alerts.png)
 
