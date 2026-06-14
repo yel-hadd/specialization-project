@@ -3,6 +3,7 @@
 // Small presentational components reused across pages.
 
 import { useI18n } from "@/lib/i18n";
+import { LOCALES, type Locale } from "@/lib/messages";
 
 const SEGMENT_STYLES: Record<string, string> = {
   excellent: "bg-emerald-100 text-emerald-800",
@@ -17,6 +18,29 @@ const SEVERITY_STYLES: Record<string, string> = {
   medium: "bg-amber-100 text-amber-800",
   low: "bg-slate-100 text-slate-700",
 };
+
+/** FR/EN toggle. Styled for dark backgrounds (sidebar, login). */
+export function LanguageSwitcher({ className = "" }: { className?: string }) {
+  const { locale, setLocale, t } = useI18n();
+  return (
+    <div className={className} aria-label={t("lang.label")}>
+      <div className="flex rounded-lg border border-white/20 p-0.5 text-xs text-white">
+        {LOCALES.map((l: Locale) => (
+          <button
+            key={l}
+            onClick={() => setLocale(l)}
+            aria-pressed={locale === l}
+            className={`flex-1 rounded-md px-2 py-1 transition ${
+              locale === l ? "bg-white/20 font-semibold" : "hover:bg-white/10"
+            }`}
+          >
+            {l.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /** Accessible "?" info bubble: shows instructional text on hover or focus. */
 export function InfoTip({ text }: { text: string }) {

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { login } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/ui";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,7 +29,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-dark">
+    <div className="relative flex min-h-screen items-center justify-center bg-brand-dark">
+      <LanguageSwitcher className="absolute right-4 top-4 w-28" />
       <form onSubmit={onSubmit} className="card w-full max-w-sm space-y-4">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-brand-dark">EduTrack Analytics</h1>

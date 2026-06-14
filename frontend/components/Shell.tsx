@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { clearToken, getToken } from "@/lib/api";
 import { useI18n } from "@/lib/i18n";
-import { LOCALES, type Locale } from "@/lib/messages";
+import { LanguageSwitcher } from "@/components/ui";
 
 const NAV = [
   { href: "/dashboard", key: "nav.dashboard" },
@@ -17,28 +17,6 @@ const NAV = [
   { href: "/imports", key: "nav.imports" },
   { href: "/reports", key: "nav.reports" },
 ];
-
-function LanguageSwitcher() {
-  const { locale, setLocale, t } = useI18n();
-  return (
-    <div className="px-3 pb-2" aria-label={t("lang.label")}>
-      <div className="flex rounded-lg border border-white/20 p-0.5 text-xs">
-        {LOCALES.map((l: Locale) => (
-          <button
-            key={l}
-            onClick={() => setLocale(l)}
-            aria-pressed={locale === l}
-            className={`flex-1 rounded-md px-2 py-1 transition ${
-              locale === l ? "bg-white/20 font-semibold" : "hover:bg-white/10"
-            }`}
-          >
-            {l.toUpperCase()}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -80,7 +58,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
-        <LanguageSwitcher />
+        <LanguageSwitcher className="px-3 pb-2" />
         <button
           onClick={() => {
             clearToken();
